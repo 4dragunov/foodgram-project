@@ -1,6 +1,6 @@
 from django import template
 
-from recipes.models import  Favorite, Purchase, Subscription
+from recipes.models import Favorite, Purchase, Subscription
 
 register = template.Library()
 
