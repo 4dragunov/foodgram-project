@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Рецепты{% endblock %}
+
+{% load static %}
+{% block static %}
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1>Об авторе</h1>
+<h2>Рад приветствовать на сайте рецептов! <br>
+Признателен на обратную связь.
+    Мои контакты есть в <a href="{% static 'about.pdf' %}">резюме</a></h2>
+{% endblock %}

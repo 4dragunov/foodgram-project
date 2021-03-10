@@ -1,0 +1,14 @@
+<li class="card-user__item">
+    <div class="recipe">
+        {% load thumbnail %}
+        {% thumbnail recipe.image "480x480" crop="center" upscale=True as im %}
+        <img src="{{ im.url }}" alt="{{ recipe.title }}"
+             class="recipe__image">
+        {% endthumbnail %}
+        <a href={% url 'recipe_detail_url' slug=recipe.slug %}
+        <h3 class="recipe__title">{{recipe.title}}</h3>
+        </a>
+        <p class="recipe__text"><span class="icon-time"></span>
+            {{recipe.prep_time}} мин.</p>
+    </div>
+</li>
