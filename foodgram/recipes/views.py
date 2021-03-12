@@ -9,7 +9,8 @@ from django.views.generic import View
 from django.views.generic.base import TemplateView
 
 from .forms import RecipeForm
-from .models import Ingredients, Ingredients_for_recipe, Recipe, Subscription
+from .models import Ingredients, Ingredients_for_recipe, Recipe, Subscription, \
+    Purchase
 from .utils import get_ingridient_from_form, paginator_data
 
 User = get_user_model()
@@ -97,40 +98,94 @@ def purchase_index(request):
 @login_required
 def get_purchase_list(request):
     '''Скачивание файла со списком покупок'''
-    recipies = Recipe.objects.filter(
-        purchases__user=request.user)
-
-    file_name = 'Purchase_list.txt'
-    txt = ''
-    purchase_dict = {}
-    for recipe in recipies:
-
-        for title, amount, dimension in recipe.ingredients:
-            if title in purchase_dict.keys():
-                purchase_dict[title][0] += amount
-            else:
-                purchase_dict[title] = [amount, dimension]
-
-    for title, detail in purchase_dict.items():
-        txt += (f'{title}: {detail[0]} {detail[1]}\n')
-
-    response = HttpResponse(txt, content_type='application/text charset=utf-8')
-    response['Content-Disposition'] = f'attachment; filename={file_name}'
-    return response
+    # recipies = Recipe.objects.filter(
+    #     purchases__user=request.user)
+    #
+    # file_name = 'Purchase_list.txt'
+    # txt = ''
+    # purchase_dict = {}
+    # for recipe in recipies:
+    #
+    #     for title, amount, dimension in recipe.ingredients:
+    #         if title in purchase_dict.keys():
+    #             purchase_dict[title][0] += amount
+    #         else:
+    #             purchase_dict[title] = [amount, dimension]
+    #
+    # for title, detail in purchase_dict.items():
+    #     txt += (f'{title}: {detail[0]} {detail[1]}\n')
 
 
-class RecipeCreate(View):
-    '''Создание рецепта'''
-    def get(self, request):
-        form = RecipeForm()
-        title = 'Создание рецепта'
-        botton_name = 'Создать рецепт'
-        return render(request, 'recipe_create.html',
-                      context={'form': form, 'botton_name': botton_name,
-                               'title': title})
 
-    def post(self, request):
-        bound_form = RecipeForm(request.POST, files=request.FILES)
+    pass
+    # recipies = Recipe.objects.filter(
+    #         purchases__user=request.user).ingridients
+    # print(recipies)
+    # ingredients = recipies.values('ingridients')
+    #     # 'recipe__recipe_ingredient',)
+    # print(ingredients)
+        # 'recipe__dimension')
+    # ).annotate(total_quantity=Sum('recipe__recipeingredient__quantity'
+    #     )
+    # )
+    # content = ""
+    # for ingredient in ingredients:
+    #     item = (f'{ingredient["recipe__ingredients__title"]} '
+    #             f'{ingredient["total_quantity"]} '
+    #             f'{ingredient["recipe__ingredients__dimension"]}')
+    #     content += item + '\n'
+
+    # ingredients = cart.values(
+    #     'recipe__ingredients__title',
+    #     'recipe__ingredients__dimension'
+
+
+
+    # response = HttpResponse(txt, content_type='application/text charset=utf-8')
+    # response['Content-Disposition'] = f'attachment; filename={file_name}'
+    # return response
+
+
+class RecipeCreateUpdate(View):
+    '''Создание или редактирование рецепта'''
+
+    def get(self, request, slug=None):
+        if slug:
+            recipe = get_object_or_404(Recipe,
+                                       author__username=self.request.user.username,
+                                       slug__iexact=slug)
+            form = RecipeForm(instance=recipe)
+            title = 'Редактирование рецепта'
+            botton_name = 'Изменить рецепт'
+            context = {
+                'form': form,
+                'botton_name': botton_name,
+                'title': title,
+                'recipe': recipe,
+            }
+        else:
+            form = RecipeForm()
+            title = 'Создание рецепта'
+            botton_name = 'Создать рецепт'
+            context = {
+                'form': form,
+                'botton_name': botton_name,
+                'title': title
+            }
+        template = 'recipe_create_or_update.html'
+        return render(request, template, context)
+
+    def post(self, request, slug=None):
+        if slug:
+            recipe = get_object_or_404(Recipe,
+                                       author__username=self.request.user.username,
+                                       slug__iexact=slug)
+            bound_form = RecipeForm(request.POST, files=request.FILES,
+                                    instance=recipe)
+
+        else:
+            bound_form = RecipeForm(request.POST, files=request.FILES)
+
         if bound_form.is_valid():
             new_recipe = bound_form.save(commit=False)
             new_recipe.tags = request.POST.getlist('tags')
@@ -145,56 +200,15 @@ class RecipeCreate(View):
                 Ingredients_for_recipe.objects.create(recipe=new_recipe,
                                                       ingredient=ingredient,
                                                       amount=amount)
+
             return redirect(new_recipe)
-        return render(request, 'recipe_create.html',
-                      context={'form': bound_form})
-
-
-class RecipeUpdate(View):
-    '''Редактитование рецепта'''
-    def get(self, request, slug):
-        recipe = get_object_or_404(Recipe,
-                                   author__username=self.request.user.username,
-                                   slug__iexact=slug)
-        form = RecipeForm(instance=recipe)
-        recipe_tags = recipe.tags
-        recipe_ingredient = recipe.ingredients
-        title = 'Редактирование рецепта'
-        botton_name = 'Изменить рецепт'
-        return render(request, 'recipe_create.html',
-                      context={'form': form, 'botton_name': botton_name,
-                               'title': title, 'recipe_tags': recipe_tags,
-                               'recipe': recipe,
-                               'recipe_ingredient': recipe_ingredient})
-
-    def post(self, request, slug):
-        recipe = get_object_or_404(Recipe,
-                                   author__username=self.request.user.username,
-                                   slug__iexact=slug)
-        bound_form = RecipeForm(request.POST, files=request.FILES,
-                                instance=recipe)
-
-        if bound_form.is_valid():
-            new_recipe = bound_form.save(commit=False)
-            new_recipe.author = request.user
-            new_recipe.save()
-            new_recipe.tags = request.POST.getlist('tags')
-            # вытаскиваем список ингридиентов из формы
-            ingridients_list = get_ingridient_from_form(request.POST)
-            for ingridient_item in ingridients_list:
-                ingredient = get_object_or_404(Ingredients,
-                                               title=ingridient_item[0])
-                amount = ingridient_item[1]
-                Ingredients_for_recipe.objects.create(recipe=recipe,
-                                                      ingredient=ingredient,
-                                                      amount=amount)
-            return redirect(new_recipe)
-        return render(request, 'recipe_create.html',
+        return render(request, 'recipe_create_or_update.html',
                       context={'form': bound_form})
 
 
 class RecipeDelete(View):
     '''Удаление рецепта'''
+
     def get(self, request, pk):
         recipe = get_object_or_404(Recipe, author=request.user, id=pk)
         recipe.delete()

@@ -124,3 +124,8 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ],
 }
+
+PAG_COUNT = '6'
+GLOBAL_SETTINGS = {
+    'PAG_COUNT' : 6
+}

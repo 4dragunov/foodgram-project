@@ -1,6 +1,6 @@
 from django import template
 from django.core.paginator import Paginator
-
+from django.conf import settings
 register = template.Library()
 
 
@@ -10,7 +10,7 @@ def get_ingridient_from_form(QueryDict):
     ингридиенты для рецепта и возвращает список ингридиентов, состоящий
     названия и количества
     '''
-    print(QueryDict)
+
     count = 0
     for key in QueryDict.keys():
         if 'nameIngredient_' in key:
@@ -31,10 +31,9 @@ def get_tags_url(request):
     tags = request.GET.getlist('tag')
     return tags
 
-
-def paginator_data(request, recipies, count=6):
+def paginator_data(request, recipies):
     '''Пагинация'''
-    paginator = Paginator(recipies, count)
+    paginator = Paginator(recipies, settings.PAG_COUNT)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     return page, paginator
