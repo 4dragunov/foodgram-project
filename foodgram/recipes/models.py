@@ -57,10 +57,10 @@ class Recipe(models.Model):
     slug = models.SlugField(max_length=150, blank=True, unique=True)
 
     ingredients = models.ManyToManyField(Ingredients,
-        blank=False,
-        through='Ingredients_for_recipe',
-        verbose_name='Ингредиенты'
-    )
+                                         blank=False,
+                                         through='Ingredients_for_recipe',
+                                         verbose_name='Ингредиенты'
+                                         )
 
     def __str__(self):
         return self.title
