@@ -62,6 +62,7 @@ class Recipe(models.Model):
                                          verbose_name='Ингредиенты'
                                          )
 
+
     def __str__(self):
         return self.title
 
@@ -72,14 +73,6 @@ class Recipe(models.Model):
 
     def get_absolute_url(self):
         return reverse('recipe_detail_url', kwargs={'slug': self.slug})
-
-
-    # @property
-    # def ingredients(self):
-    #     ingridients = Ingredients_for_recipe.objects.filter(
-    #         recipe=self).select_related('ingredient').values_list(
-    #         'ingredient__title', 'amount', 'ingredient__dimension')
-    #     return ingridients
 
 
 
