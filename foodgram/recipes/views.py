@@ -94,30 +94,30 @@ def purchase_index(request):
     return render(request, 'purchase_index.html', context={
         'recipies': recipies})
 
-
+#
 @login_required
 def get_purchase_list(request):
     '''Скачивание файла со списком покупок'''
-    # recipies = Recipe.objects.filter(
-    #     purchases__user=request.user)
-    #
-    # file_name = 'Purchase_list.txt'
-    # txt = ''
-    # purchase_dict = {}
-    # for recipe in recipies:
-    #
-    #     for title, amount, dimension in recipe.ingredients:
-    #         if title in purchase_dict.keys():
-    #             purchase_dict[title][0] += amount
-    #         else:
-    #             purchase_dict[title] = [amount, dimension]
-    #
-    # for title, detail in purchase_dict.items():
-    #     txt += (f'{title}: {detail[0]} {detail[1]}\n')
+    recipies = Recipe.objects.filter(
+        purchases__user=request.user)
+
+    file_name = 'Purchase_list.txt'
+    txt = ''
+    purchase_dict = {}
+    for recipe in recipies:
+
+        for title, amount, dimension in recipe.ingredients:
+            if title in purchase_dict.keys():
+                purchase_dict[title][0] += amount
+            else:
+                purchase_dict[title] = [amount, dimension]
+
+    for title, detail in purchase_dict.items():
+        txt += (f'{title}: {detail[0]} {detail[1]}\n')
 
 
 
-    pass
+    # pass
     # recipies = Recipe.objects.filter(
     #         purchases__user=request.user).ingridients
     # print(recipies)
