@@ -22,6 +22,17 @@ def gen_slug(s):
     new_slug = (slugify(s, allow_unicode=True))
     return new_slug + '-' + str(int(time()))
 
+class Ingredients(models.Model):
+    '''
+    Модель ингридиентов (без привязки к рецепту)
+    '''
+    title = models.CharField(max_length=100, verbose_name='Название')
+    dimension = models.CharField(max_length=25,
+                                 verbose_name='Единица измерения')
+
+    def __str__(self):
+        return self.title
+
 
 class Recipe(models.Model):
     '''Модель рецепта    '''
@@ -45,6 +56,12 @@ class Recipe(models.Model):
 
     slug = models.SlugField(max_length=150, blank=True, unique=True)
 
+    ingredients = models.ManyToManyField(Ingredients,
+                                         blank=False,
+                                         through='Ingredients_for_recipe',
+                                         verbose_name='Ингредиенты'
+                                         )
+
     def __str__(self):
         return self.title
 
@@ -56,24 +73,8 @@ class Recipe(models.Model):
     def get_absolute_url(self):
         return reverse('recipe_detail_url', kwargs={'slug': self.slug})
 
-    @property
-    def ingredients(self):
-        ingridients = Ingredients_for_recipe.objects.filter(
-            recipe=self).select_related('ingredient').values_list(
-            'ingredient__title', 'amount', 'ingredient__dimension')
-        return ingridients
 
 
-class Ingredients(models.Model):
-    '''
-    Модель ингридиентов (без привязки к рецепту)
-    '''
-    title = models.CharField(max_length=100, verbose_name='Название')
-    dimension = models.CharField(max_length=25,
-                                 verbose_name='Единица измерения')
-
-    def __str__(self):
-        return self.title
 
 
 class Ingredients_for_recipe(models.Model):
