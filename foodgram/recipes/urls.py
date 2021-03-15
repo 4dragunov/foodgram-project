@@ -1,8 +1,7 @@
 from django.urls import path
 
 from .views import (About, RecipeDelete, RecipeCreateUpdate,
-                    Technologies, favorite_index,
-                    get_purchase_list,
+                    Technologies, favorite_index, get_purchase_list,
                     index, login_required, profile_index, purchase_index,
                     recipe_detail, subscription_index)
 

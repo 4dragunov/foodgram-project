@@ -3,7 +3,7 @@ from functools import reduce
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.shortcuts import HttpResponse, get_object_or_404, redirect, render
 from django.views.generic import View
 from django.views.generic.base import TemplateView
@@ -94,56 +94,25 @@ def purchase_index(request):
     return render(request, 'purchase_index.html', context={
         'recipies': recipies})
 
-#
+
 @login_required
 def get_purchase_list(request):
-    '''Скачивание файла со списком покупок'''
-    recipies = Recipe.objects.filter(
-        purchases__user=request.user)
-
+    '''Загрузка txt файла со списком ингридиентов выбранных рецептов'''
     file_name = 'Purchase_list.txt'
     txt = ''
-    purchase_dict = {}
-    for recipe in recipies:
-
-        for title, amount, dimension in recipe.ingredients:
-            if title in purchase_dict.keys():
-                purchase_dict[title][0] += amount
-            else:
-                purchase_dict[title] = [amount, dimension]
-
-    for title, detail in purchase_dict.items():
-        txt += (f'{title}: {detail[0]} {detail[1]}\n')
-
-
-
-    # pass
-    # recipies = Recipe.objects.filter(
-    #         purchases__user=request.user).ingridients
-    # print(recipies)
-    # ingredients = recipies.values('ingridients')
-    #     # 'recipe__recipe_ingredient',)
-    # print(ingredients)
-        # 'recipe__dimension')
-    # ).annotate(total_quantity=Sum('recipe__recipeingredient__quantity'
-    #     )
-    # )
-    # content = ""
-    # for ingredient in ingredients:
-    #     item = (f'{ingredient["recipe__ingredients__title"]} '
-    #             f'{ingredient["total_quantity"]} '
-    #             f'{ingredient["recipe__ingredients__dimension"]}')
-    #     content += item + '\n'
-
-    # ingredients = cart.values(
-    #     'recipe__ingredients__title',
-    #     'recipe__ingredients__dimension'
-
-
-
-    # response = HttpResponse(txt, content_type='application/text charset=utf-8')
-    # response['Content-Disposition'] = f'attachment; filename={file_name}'
-    # return response
+    purchase = Purchase.objects.filter(user=request.user)
+    ingredients = purchase.values('recipe__ingredients__title',
+                                  'recipe__ingredients__dimension').annotate(
+        recipe__ingredients_amount_sum=Sum(
+            'recipe__recipe_ingredient__amount'))
+    for ingredient in ingredients:
+        item = (f'{ingredient["recipe__ingredients__title"]} '
+                f'{ingredient["recipe__ingredients_amount_sum"]} '
+                f'{ingredient["recipe__ingredients__dimension"]}')
+        txt += item + '\n'
+    response = HttpResponse(txt, content_type='application/text charset=utf-8')
+    response['Content-Disposition'] = f'attachment; filename={file_name}'
+    return response
 
 
 class RecipeCreateUpdate(View):

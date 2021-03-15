@@ -60,10 +60,10 @@
                 </div>
                 {% if user.is_authenticated %}
                 <ul class="single-card__items">
-{% if recipe|check_purchase:request.user %}
-                            <button class="button button_style_light-blue-outline" name="purchases"><span class="icon-check button__icon"></span> Рецепт добавлен</button>
+                {% if recipe|check_purchase:request.user %}
+                    <button class="button button_style_light-blue-outline" name="purchases"><span class="icon-check button__icon"></span> Рецепт добавлен</button>
                         {% else %}
-                            <button class="button button_style_blue" name="purchases" data-out><span class="icon-plus"></span> Добавить в покупки</button>
+                    <button class="button button_style_blue" name="purchases" data-out><span class="icon-plus"></span> Добавить в покупки</button>
                         {% endif %}
                     {% if request.user.id != recipe.author.id %}
                     <li class="single-card__item">
@@ -78,11 +78,11 @@
                 <div class="single-card__section">
                     <h3 class="single-card__section-title">Ингридиенты:</h3>
                     <div class="single-card__items single-card__items_column">
-                    {% for title, amount, dimension in recipe.ingredients.all %}
-
-                        <p class=" single-card__section-item">{{title}} - {{amount}}
-                            {{dimension}}.</p>
-
+                    {% for ingredient in recipe.recipe_ingredient.all %}
+                        <p class=" single-card__section-item">
+                            {{ ingredient.ingredient.title }} -
+                            {{ ingredient.amount }}
+                            {{ ingredient.ingredient.dimension }}.</p>
                         {% endfor %}
                     </div>
                 </div>

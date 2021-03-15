@@ -62,7 +62,6 @@ class Recipe(models.Model):
                                          verbose_name='Ингредиенты'
                                          )
 
-
     def __str__(self):
         return self.title
 
@@ -73,6 +72,8 @@ class Recipe(models.Model):
 
     def get_absolute_url(self):
         return reverse('recipe_detail_url', kwargs={'slug': self.slug})
+
+
 
 
 
