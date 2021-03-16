@@ -4,7 +4,6 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
-
 from multiselectfield import MultiSelectField
 
 User = get_user_model()
@@ -19,19 +18,25 @@ TAGS = ((BREAKFAST, 'breakfast'),
 
 
 def gen_slug(s):
+    ''' Генерация slug для каждого рецепта'''
     new_slug = (slugify(s, allow_unicode=True))
-    return new_slug + '-' + str(int(time()))
+    return f'{new_slug}-{str(int(time()))}'
+
 
 class Ingredients(models.Model):
     '''
     Модель ингридиентов (без привязки к рецепту)
     '''
     title = models.CharField(max_length=100, verbose_name='Название')
-    dimension = models.CharField(max_length=25,
+    dimension = models.CharField(max_length=50,
                                  verbose_name='Единица измерения')
 
+    class Meta:
+        verbose_name = "Ингредиент"
+        verbose_name_plural = "Ингредиенты"
+
     def __str__(self):
-        return self.title
+        return f'{self.title} {self.dimension}'
 
 
 class Recipe(models.Model):
@@ -42,8 +47,8 @@ class Recipe(models.Model):
                                verbose_name='Автор')
     title = models.CharField(max_length=100, verbose_name='Название')
     description = models.TextField(verbose_name='Описание')
-    prep_time = models.IntegerField(verbose_name='Время приготовления',
-                                    help_text='в минутах')
+    prep_time = models.PositiveIntegerField(verbose_name='Время приготовления',
+                                            help_text='в минутах')
     image = models.ImageField(upload_to='recipes/images/',
                               verbose_name='Изображение',
                               help_text='поле для рисунка')
@@ -58,7 +63,7 @@ class Recipe(models.Model):
 
     ingredients = models.ManyToManyField(Ingredients,
                                          blank=False,
-                                         through='Ingredients_for_recipe',
+                                         through='IngredientsForRecipe',
                                          verbose_name='Ингредиенты'
                                          )
 
@@ -73,11 +78,13 @@ class Recipe(models.Model):
     def get_absolute_url(self):
         return reverse('recipe_detail_url', kwargs={'slug': self.slug})
 
+    class Meta:
+        verbose_name = 'Рецепт'
+        verbose_name_plural = 'Рецепты'
+        ordering = ("-date_pub",)
 
 
-
-
-class Ingredients_for_recipe(models.Model):
+class IngredientsForRecipe(models.Model):
     '''
     Таблица связи между рецептом и количеством ингридиента
     '''
@@ -93,7 +100,10 @@ class Ingredients_for_recipe(models.Model):
                                     verbose_name='Дата создания')
 
     def __str__(self):
-        return f'{self.ingredient} для рецепта {self.recipe} '
+        return f'{self.ingredient} для рецепта {self.recipe}'
+
+    class Meta:
+        verbose_name_plural = "Ингредиенты для рецепта"
 
 
 class Subscription(models.Model):
@@ -104,6 +114,12 @@ class Subscription(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE,
                                related_name="following",
                                verbose_name='Автор')
+
+    class Meta:
+        verbose_name = "Подписка"
+        verbose_name_plural = "Подписки"
+        unique_together = ['user', 'author']
+        ordering = ['user', 'author']
 
 
 class Favorite(models.Model):
@@ -120,6 +136,11 @@ class Favorite(models.Model):
                                     db_index=True,
                                     verbose_name='Дата создания')
 
+    class Meta:
+        verbose_name = "Избранный рецепт"
+        verbose_name_plural = "Избранные рецепты"
+        ordering = ("-date_pub",)
+
 
 class Purchase(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,
@@ -134,3 +155,10 @@ class Purchase(models.Model):
     date_pub = models.DateTimeField(auto_now_add=True,
                                     db_index=True,
                                     verbose_name='Дата создания')
+
+    class Meta:
+        verbose_name = "Список покупок"
+        verbose_name_plural = "Списки покупок"
+        ordering = ("-date_pub",)
+
+        

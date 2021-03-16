@@ -11,12 +11,12 @@ def get_ingridient_from_form(QueryDict):
     названия и количества
     '''
 
-    count = 0
+    pos = []
     for key in QueryDict.keys():
         if 'nameIngredient_' in key:
-            count += 1
+            pos.append(key[15:])
     ing = []
-    for number in range(1, count + 1):
+    for number in pos:
         number = str(number)
         nameIngredient = 'nameIngredient_' + str(number)
         valueIngredient = 'valueIngredient_' + str(number)

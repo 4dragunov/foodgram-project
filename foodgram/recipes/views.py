@@ -9,7 +9,7 @@ from django.views.generic import View
 from django.views.generic.base import TemplateView
 
 from .forms import RecipeForm
-from .models import Ingredients, Ingredients_for_recipe, Recipe, Subscription, \
+from .models import Ingredients, IngredientsForRecipe, Recipe, Subscription, \
     Purchase
 from .utils import get_ingridient_from_form, paginator_data
 
@@ -166,7 +166,7 @@ class RecipeCreateUpdate(View):
                 ingredient = get_object_or_404(Ingredients,
                                                title=ingridient_item[0])
                 amount = ingridient_item[1]
-                Ingredients_for_recipe.objects.create(recipe=new_recipe,
+                IngredientsForRecipe.objects.create(recipe=new_recipe,
                                                       ingredient=ingredient,
                                                       amount=amount)
 
