@@ -18,15 +18,13 @@ TAGS = ((BREAKFAST, 'breakfast'),
 
 
 def gen_slug(s):
-    ''' Генерация slug для каждого рецепта'''
+    ''' Генерация slug для рецепта'''
     new_slug = (slugify(s, allow_unicode=True))
     return f'{new_slug}-{str(int(time()))}'
 
 
 class Ingredients(models.Model):
-    '''
-    Модель ингридиентов (без привязки к рецепту)
-    '''
+    '''Модель ингридиентов (без привязки к рецепту)'''
     title = models.CharField(max_length=100, verbose_name='Название')
     dimension = models.CharField(max_length=50,
                                  verbose_name='Единица измерения')
@@ -40,7 +38,7 @@ class Ingredients(models.Model):
 
 
 class Recipe(models.Model):
-    '''Модель рецепта    '''
+    '''Модель рецепта'''
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE,
                                related_name='recipes',
@@ -123,6 +121,7 @@ class Subscription(models.Model):
 
 
 class Favorite(models.Model):
+    '''Избранные рецепты'''
     user = models.ForeignKey(User, on_delete=models.CASCADE,
                              verbose_name='Пользователь',
                              related_name="favorites",
@@ -143,6 +142,7 @@ class Favorite(models.Model):
 
 
 class Purchase(models.Model):
+    '''Список покупок'''
     user = models.ForeignKey(User, on_delete=models.CASCADE,
                              verbose_name='Пользователь',
                              related_name="purchases",
@@ -160,5 +160,3 @@ class Purchase(models.Model):
         verbose_name = "Список покупок"
         verbose_name_plural = "Списки покупок"
         ordering = ("-date_pub",)
-
-        

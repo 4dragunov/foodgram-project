@@ -1,6 +1,7 @@
 from django import template
-from django.core.paginator import Paginator
 from django.conf import settings
+from django.core.paginator import Paginator
+
 register = template.Library()
 
 
@@ -30,6 +31,7 @@ def get_tags_url(request):
     '''Получение списка тегов из URL GET запроса'''
     tags = request.GET.getlist('tag')
     return tags
+
 
 def paginator_data(request, recipies):
     '''Пагинация'''

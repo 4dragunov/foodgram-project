@@ -1,34 +1,49 @@
-from recipes.models import (Favorite, Ingredients, Purchase, Recipe,
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
+
+from recipes.models import (Favorite, Ingredients, Purchase,
                             Subscription, User)
 
 from rest_framework import viewsets
 from rest_framework.generics import get_object_or_404
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from .permissions import IsOwnerOrReadOnly
-from .serializers import (FavoriteSerializer, IngredientsSerializer,
-                          PurchaseSerializer, SubscriptionSerializer)
+from .serializers import IngredientsSerializer
+from .utils import PurchaseFavoriteMixin
 
 
-class SubscriptionViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
-    queryset = Subscription.objects.all()
-    serializer_class = SubscriptionSerializer
+class PurchaseView(APIView, PurchaseFavoriteMixin):
+    '''Список покупок - добавление и удаление'''
+    model = Purchase
 
-    def perform_create(self, serializer):
-        """создание подписки на автора."""
+
+class FavoriteView(APIView, PurchaseFavoriteMixin):
+    '''Список избранных рецептов - добавление и удаление'''
+    model = Favorite
+
+
+class SubscribeView(LoginRequiredMixin, APIView):
+    '''Создание и удаление подписок на авторов'''
+
+    def post(self, request):
+        '''Подписка'''
         author_id = int(self.request.data.get('id'))
-        author = get_object_or_404(User, id=author_id)
-        serializer.save(user=self.request.user, author=author)
+        if author_id:
+            author = get_object_or_404(User, id=author_id)
+            Subscription.objects.get_or_create(user=self.request.user,
+                                               author=author)
+            return JsonResponse({"success": True})
+        else:
+            return JsonResponse({"success": "false",
+                                 "message": "id not found"},
+                                status=400)
 
-    def destroy(self, request, *args, **kwargs):
-        """удаление подписки на автора."""
-        subscription = get_object_or_404(Subscription,
-                                         author_id=kwargs.get('pk'),
-                                         user=request.user)
-        self.perform_destroy(subscription)
-        return Response({"success": True})
+    def delete(self, request, author_id):
+        '''Удаление подписки на автора'''
+        Subscription.objects.filter(
+            user=self.request.user, author=author_id).delete()
+        return JsonResponse({"success": True})
 
 
 class IngredientsViewSet(viewsets.ModelViewSet):
@@ -41,43 +56,3 @@ class IngredientsViewSet(viewsets.ModelViewSet):
         queryset = self.queryset.filter(title__contains=query)
         serializer = IngredientsSerializer(queryset, many=True)
         return Response(serializer.data)
-
-
-class FavoriteViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
-    queryset = Favorite.objects.all()
-    serializer_class = FavoriteSerializer
-
-    def perform_create(self, serializer):
-        """добавление рецепта из избранного"""
-        recipe_id = int(self.request.data.get('id'))
-        recipe = get_object_or_404(Recipe, id=recipe_id)
-        serializer.save(user=self.request.user, recipe=recipe)
-
-    def destroy(self, request, *args, **kwargs):
-        """удаление рецепта из избранного"""
-        favorite_recipe = get_object_or_404(Favorite,
-                                            recipe_id=kwargs.get('pk'),
-                                            user=request.user)
-        self.perform_destroy(favorite_recipe)
-        return Response({"success": True})
-
-
-class PurchaseViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
-    queryset = Purchase.objects.all()
-    serializer_class = PurchaseSerializer
-
-    def perform_create(self, serializer):
-        """добавление рецепта в список покупок"""
-        recipe_id = int(self.request.data.get('id'))
-        recipe = get_object_or_404(Recipe, id=recipe_id)
-        serializer.save(user=self.request.user, recipe=recipe)
-
-    def destroy(self, request, *args, **kwargs):
-        """удаление рецепта из списка покупок"""
-        purchase_recipe = get_object_or_404(Purchase,
-                                            recipe_id=kwargs.get('pk'),
-                                            user=request.user)
-        self.perform_destroy(purchase_recipe)
-        return Response({"success": True})

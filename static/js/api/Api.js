@@ -4,7 +4,7 @@ class Api {
     }
 
     getPurchases() {
-        return fetch(`/api/v1/purchases/`, {
+        return fetch(this.apiUrl+`purchases/`, {
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': document.getElementsByName('csrfmiddlewaretoken')[0].value
@@ -19,7 +19,7 @@ class Api {
     }
 
     addPurchases(id) {
-        return fetch(`/api/v1/purchases/`, {
+        return fetch(this.apiUrl+`purchases/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -38,7 +38,7 @@ class Api {
     }
 
     removePurchases(id) {
-        return fetch(`/api/v1/purchases/${id}/`, {
+        return fetch(this.apiUrl+`purchases/${id}/`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -54,7 +54,7 @@ class Api {
     }
 
     addSubscriptions(id) {
-        return fetch(`/api/v1/subscriptions/`, {
+        return fetch(this.apiUrl+`subscriptions/`, {
 
             method: 'POST',
             headers: {
@@ -74,7 +74,7 @@ class Api {
     }
 
     removeSubscriptions(id) {
-        return fetch(`/api/v1/subscriptions/${id}/`, {
+        return fetch(this.apiUrl+`subscriptions/${id}/`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ class Api {
     }
 
     addFavorites(id) {
-        return fetch(`/api/v1/favorites/`, {
+        return fetch(this.apiUrl+`favorites/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -110,7 +110,7 @@ class Api {
     }
 
     removeFavorites(id) {
-        return fetch(`/api/v1/favorites/${id}/`, {
+        return fetch(this.apiUrl+`favorites/${id}/`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -126,7 +126,7 @@ class Api {
     }
 
     getIngredients(text) {
-        return fetch(`/api/v1/ingredients/?query=${text}`, {
+        return fetch(this.apiUrl+`ingredients/?query=${text}`, {
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': document.getElementsByName('csrfmiddlewaretoken')[0].value

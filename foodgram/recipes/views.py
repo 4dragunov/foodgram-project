@@ -9,8 +9,8 @@ from django.views.generic import View
 from django.views.generic.base import TemplateView
 
 from .forms import RecipeForm
-from .models import Ingredients, IngredientsForRecipe, Recipe, Subscription, \
-    Purchase
+from .models import (Ingredients, IngredientsForRecipe, Purchase, Recipe,
+                     Subscription)
 from .utils import get_ingridient_from_form, paginator_data
 
 User = get_user_model()
@@ -121,7 +121,8 @@ class RecipeCreateUpdate(View):
     def get(self, request, slug=None):
         if slug:
             recipe = get_object_or_404(Recipe,
-                                       author__username=self.request.user.username,
+                                       author__username=(self.request.
+                                                         user.username),
                                        slug__iexact=slug)
             form = RecipeForm(instance=recipe)
             title = 'Редактирование рецепта'
@@ -147,7 +148,8 @@ class RecipeCreateUpdate(View):
     def post(self, request, slug=None):
         if slug:
             recipe = get_object_or_404(Recipe,
-                                       author__username=self.request.user.username,
+                                       author__username=(self.request.
+                                                         user.username),
                                        slug__iexact=slug)
             bound_form = RecipeForm(request.POST, files=request.FILES,
                                     instance=recipe)
@@ -167,9 +169,8 @@ class RecipeCreateUpdate(View):
                                                title=ingridient_item[0])
                 amount = ingridient_item[1]
                 IngredientsForRecipe.objects.create(recipe=new_recipe,
-                                                      ingredient=ingredient,
-                                                      amount=amount)
-
+                                                    ingredient=ingredient,
+                                                    amount=amount)
             return redirect(new_recipe)
         return render(request, 'recipe_create_or_update.html',
                       context={'form': bound_form})
