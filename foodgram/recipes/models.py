@@ -1,6 +1,7 @@
 from time import time
 
 from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
@@ -46,7 +47,8 @@ class Recipe(models.Model):
     title = models.CharField(max_length=100, verbose_name='Название')
     description = models.TextField(verbose_name='Описание')
     prep_time = models.PositiveIntegerField(verbose_name='Время приготовления',
-                                            help_text='в минутах')
+                                            help_text='в минутах',
+                                            validators=[MinValueValidator(1)])
     image = models.ImageField(upload_to='recipes/images/',
                               verbose_name='Изображение',
                               help_text='поле для рисунка')

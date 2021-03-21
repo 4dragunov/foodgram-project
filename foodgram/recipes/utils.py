@@ -2,6 +2,8 @@ from django import template
 from django.conf import settings
 from django.core.paginator import Paginator
 
+from django.http import HttpResponse
+
 register = template.Library()
 
 
@@ -12,19 +14,12 @@ def get_ingridient_from_form(QueryDict):
     названия и количества
     '''
 
-    pos = []
-    for key in QueryDict.keys():
-        if 'nameIngredient_' in key:
-            pos.append(key[15:])
-    ing = []
-    for number in pos:
-        number = str(number)
-        nameIngredient = 'nameIngredient_' + str(number)
-        valueIngredient = 'valueIngredient_' + str(number)
-        ing.append([QueryDict[nameIngredient], QueryDict[
-            valueIngredient]])
-
-    return (ing)
+    ing = {}
+    for key, title in QueryDict.items():
+        if 'nameIngredient' in key:
+            elem = key.split("_")
+            ing[title] = int(QueryDict[f'valueIngredient_{elem[1]}'])
+    return ing
 
 
 def get_tags_url(request):

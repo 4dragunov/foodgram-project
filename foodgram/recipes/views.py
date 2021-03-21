@@ -158,19 +158,28 @@ class RecipeCreateUpdate(View):
             bound_form = RecipeForm(request.POST, files=request.FILES)
 
         if bound_form.is_valid():
+            recipe_ingredients = IngredientsForRecipe.objects.filter(
+                recipe=recipe
+            )
+            recipe_ingredients.delete()
             new_recipe = bound_form.save(commit=False)
             new_recipe.tags = request.POST.getlist('tags')
             new_recipe.author = request.user
             new_recipe.save()
+            bound_form.save_m2m()
             # вытаскиваем список ингридиентов из формы
-            ingridients_list = get_ingridient_from_form(request.POST)
-            for ingridient_item in ingridients_list:
-                ingredient = get_object_or_404(Ingredients,
-                                               title=ingridient_item[0])
-                amount = ingridient_item[1]
-                IngredientsForRecipe.objects.create(recipe=new_recipe,
-                                                    ingredient=ingredient,
-                                                    amount=amount)
+            ingredients = get_ingridient_from_form(request.POST)
+            for title, amount in ingredients.items():
+                ingredient = get_object_or_404(
+                    Ingredients,
+                    title=title
+                )
+                recipe_ingridiend = IngredientsForRecipe(
+                    recipe=new_recipe,
+                    ingredient=ingredient,
+                    amount=amount
+                )
+                recipe_ingridiend.save()
             return redirect(new_recipe)
         return render(request, 'recipe_create_or_update.html',
                       context={'form': bound_form})

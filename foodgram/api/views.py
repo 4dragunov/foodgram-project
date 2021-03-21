@@ -1,7 +1,9 @@
+from http import HTTPStatus
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 
-from recipes.models import (Favorite, Ingredients, Purchase,
+from recipes.models import (Favorite, Ingredients, Purchase, Recipe,
                             Subscription, User)
 
 from rest_framework import viewsets
@@ -10,21 +12,43 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .serializers import IngredientsSerializer
-from .utils import PurchaseFavoriteMixin
 
 
-class PurchaseView(APIView, PurchaseFavoriteMixin):
+class PurchaseFavoriteMixin(APIView):
+    '''Миксин пидписки и избранного (добавление и удаление)'''
+    model = None
+    SUCCESS_RESPONSE = JsonResponse({'success': True})
+
+    def post(self, request):
+        '''Создание'''
+        recipe_id = int(self.request.data.get('id'))
+        if recipe_id:
+            recipe = get_object_or_404(Recipe, id=recipe_id)
+            self.model.objects.get_or_create(user=self.request.user,
+                                             recipe=recipe)
+        return self.SUCCESS_RESPONSE
+
+    def delete(self, request, recipe_id):
+        '''Удаление'''
+        self.model.objects.filter(user=self.request.user,
+                                  recipe=recipe_id).delete()
+        return self.SUCCESS_RESPONSE
+
+
+class PurchaseView(PurchaseFavoriteMixin):
     '''Список покупок - добавление и удаление'''
     model = Purchase
 
 
-class FavoriteView(APIView, PurchaseFavoriteMixin):
+class FavoriteView(PurchaseFavoriteMixin):
     '''Список избранных рецептов - добавление и удаление'''
     model = Favorite
 
 
 class SubscribeView(LoginRequiredMixin, APIView):
     '''Создание и удаление подписок на авторов'''
+    SUCCESS_RESPONSE = JsonResponse({'success': True})
+    BAD_RESPONSE = JsonResponse({'success': False}, status=400)
 
     def post(self, request):
         '''Подписка'''
@@ -33,17 +57,15 @@ class SubscribeView(LoginRequiredMixin, APIView):
             author = get_object_or_404(User, id=author_id)
             Subscription.objects.get_or_create(user=self.request.user,
                                                author=author)
-            return JsonResponse({"success": True})
+            return self.SUCCESS_RESPONSE
         else:
-            return JsonResponse({"success": "false",
-                                 "message": "id not found"},
-                                status=400)
+            return self.BAD_RESPONSE
 
     def delete(self, request, author_id):
         '''Удаление подписки на автора'''
         Subscription.objects.filter(
             user=self.request.user, author=author_id).delete()
-        return JsonResponse({"success": True})
+        return self.SUCCESS_RESPONSE
 
 
 class IngredientsViewSet(viewsets.ModelViewSet):
