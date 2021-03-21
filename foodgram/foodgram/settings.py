@@ -1,15 +1,20 @@
-
 import os
 from datetime import timedelta
 from pathlib import Path
+# import environ
+#
+# env = environ.Env()
+# environ.Env.read_env()  # импортируем
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+# BASE_DIR = Path(__file__).resolve().parent.parent.parent
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 
 SECRET_KEY = '*rq1r-era4h9-7=53k_h^0717hb%_*ibs7$!7e8f6skfkxj5#5'
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '178.154.204.140']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '178.154.204.140', '0.0.0.0']
 
 INSTALLED_APPS = [
 
@@ -59,15 +64,23 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'foodgram.wsgi.application'
-
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        # 'ENGINE': os.environ.get('DB_ENGINE'),
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT'),
     }
 }
-
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -97,11 +110,12 @@ USE_L10N = True
 
 USE_TZ = True
 
+# STATIC_URL = '/static/'
+# STATICFILES_DIRS = (
+#     os.path.join(BASE_DIR, 'static'),
+# )
 STATIC_URL = '/static/'
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
-)
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 # Login
 LOGIN_URL = '/auth/login/'
@@ -124,8 +138,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ],
 }
-
 PAG_COUNT = '6'
 GLOBAL_SETTINGS = {
-    'PAG_COUNT' : 6
+    'PAG_COUNT': 6
 }
