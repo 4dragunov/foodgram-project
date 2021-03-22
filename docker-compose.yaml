@@ -13,8 +13,8 @@ services:
     env_file:
       - ./.env
   web:
-#    image: 4dragunov/foodgram-project:latest
-    build: .
+    image: 4dragunov/foodgram-project:latest
+#    build: .
     restart: always
     command: gunicorn foodgram.wsgi:application --bind 0.0.0.0:8000
     expose:
