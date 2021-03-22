@@ -25,7 +25,6 @@ services:
       - ./.env
     volumes:
       - static_volume:/code/static
-#      - media_volume:/code/media/
 
 
   nginx:
@@ -35,7 +34,6 @@ services:
       - 80:80
     volumes:
       - static_volume:/code/static
-#      - media_volume:/code/media/
       - ./nginx:/etc/nginx/conf.d
     depends_on:
       - web

@@ -1,5 +1,3 @@
-from http import HTTPStatus
-
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 
