@@ -14,7 +14,6 @@ services:
       - ./.env
   web:
     image: 4dragunov/foodgram-project:latest
-#    build: .
     restart: always
     command: gunicorn foodgram.wsgi:application --bind 0.0.0.0:8000
     expose:
@@ -37,5 +36,3 @@ services:
       - ./nginx:/etc/nginx/conf.d
     depends_on:
       - web
-
-

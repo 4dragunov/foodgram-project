@@ -1,14 +1,13 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 
-from recipes.models import (Favorite, Ingredients, Purchase, Recipe,
-                            Subscription, User)
-
 from rest_framework import viewsets
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from recipes.models import (Favorite, Ingredients, Purchase, Recipe,
+                            Subscription, User)
 from .serializers import IngredientsSerializer
 
 

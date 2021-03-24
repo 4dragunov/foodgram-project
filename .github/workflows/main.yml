@@ -57,8 +57,6 @@ jobs:
           script: |
             cd foodgram-project
             sudo mv env .env
-            sudo docker-compose stop
-            sudo docker-compose rm web
-            sudo docker-compose up -d
-
-
+            sudo docker pull 4dragunov/foodgram-project:latest
+            sudo docker-compose up --force-recreate --no-deps -d web
+            sudo docker image prune -f
