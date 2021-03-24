@@ -11,7 +11,9 @@
 <div class="main__header">
     <h1 class="main__title">{{title}} </h1>
 </div>
+
 <div class="form-container">
+
     <form class="form" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="form__group">
@@ -49,7 +51,9 @@
                         <label for="id_dinner" class="tags__label">Ужин</label>
                     </div>
                 </div>
-                <span class="form__error">{{ form.tags.errors }}</span>
+                <span class="form__error">
+                    {{ form.tags.errors }}</span>
+
             </div>
         </div>
         <div class="form__group">
@@ -85,7 +89,10 @@
                 </div>
                 <span class="form__ingredient-link" id="addIng">Добавить ингредиент</span>
 
-                <span class="form__error"></span>
+                <span class="form__error">
+                    {{ form.non_field_errors }}
+<!--                    {{ form.ingredients.errors }}-->
+                </span>
             </div>
         </div>
 
@@ -117,10 +124,10 @@
                 <label for="{{ form.image.id_for_label }}"
                        class="form__file-button">Выбрать файл</label>
                 {{ form.image }}
+
                 <span class="form__error">{{ form.image.errors }}</span>
             </div>
         </div>
-
 
 
 
@@ -129,7 +136,7 @@
             </button>
             {%  if 'update' in request.path %}
                     <a style="margin-left: 2.5em"
-                       href="{% url 'recipe_delete_url' recipe.pk %}"
+                       href="{% url 'recipe_delete_url' recipe.id %}"
                        class="form__ingredient-link">Удалить</a>
                 {% endif %}
         </div>

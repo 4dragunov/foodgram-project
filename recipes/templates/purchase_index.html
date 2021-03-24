@@ -24,7 +24,6 @@
                     class="recipe__image recipe__image_big" width="480" height="480">
 
                     {% endthumbnail %}
-<!--                    <img src="./images/testCardImg.png" alt="какой-то текст" class="recipe__image recipe__image_big">-->
                     <h3 class="recipe__title">{{ recipe.title }}</h3>
                     <p class="recipe__text"><span class="icon-time"></span> {{ recipe.prep_time }} мин.</p>
                 </div>
@@ -33,9 +32,11 @@
             {% endfor %}
 
         </ul>
+        {% if recipies %}
         <a href="{% url 'get_purchase_list_url' %}"><button
                 class="button button_style_blue">Скачать
             список</button></a>
+        {% endif %}
 
 
     </div>

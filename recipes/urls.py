@@ -20,11 +20,8 @@ urlpatterns = [
     path('recipies/<str:slug>/update', login_required(
         RecipeCreateUpdate.as_view()),
          name='recipe_update_url'),
-    # path('recipies/create', login_required(RecipeCreate.as_view()),
-    #      name='recipe_create_url'),
     path('recipies/delete/<int:pk>', login_required(RecipeDelete.as_view()),
          name='recipe_delete_url'),
     path('recipies/<str:slug>', recipe_detail, name='recipe_detail_url'),
-    # path('recipies/<str:slug>/update', RecipeUpdate.as_view(),
-    #      name='recipe_update_url'),
+
 ]

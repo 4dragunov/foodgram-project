@@ -9,9 +9,8 @@ from django.views.generic import View
 from django.views.generic.base import TemplateView
 
 from .forms import RecipeForm
-from .models import (Ingredients, IngredientsForRecipe, Purchase, Recipe,
-                     Subscription)
-from .utils import get_ingridient_from_form, paginator_data
+from .models import (Purchase, Recipe, Subscription)
+from .utils import paginator_data
 
 User = get_user_model()
 
@@ -45,14 +44,21 @@ def profile_index(request, username):
     '''Персональная страница пользователя'''
     author = get_object_or_404(User, username=username)
     user = request.user
-    recipies = author.recipes.all()
+    tags = request.GET.getlist('tag')
+    if tags:
+        # фильтрация по совокупности выбранных тегов
+        query = reduce(operator.or_, (Q(tags__contains=tag) for tag in tags))
+        recipies = author.recipes.filter(query).order_by('-date_pub')
+    else:
+        recipies = author.recipes.all().order_by('-date_pub')
 
     following = Subscription.objects.filter(user__username=user,
                                             author=author).count()
     return render(request, 'profile.html', context={'recipies': recipies,
                                                     'author': author,
                                                     'user': user,
-                                                    'following': following})
+                                                    'following': following,
+                                                    'tags': tags})
 
 
 @login_required
@@ -151,38 +157,38 @@ class RecipeCreateUpdate(View):
                                        author__username=(self.request.
                                                          user.username),
                                        slug__iexact=slug)
-            bound_form = RecipeForm(request.POST, files=request.FILES,
-                                    instance=recipe)
+            if request.user != recipe.author:
+                return redirect('index')
+            bound_form = RecipeForm(request.POST or None,
+                                    files=request.FILES or None,
+                                    instance=recipe,
+                                    initial={"request": request})
+
+            context = {
+                'form': bound_form,
+                'title': 'Редактирование рецепта',
+                'botton_name': 'Редактирование рецепта',
+                'recipe': recipe
+            }
 
         else:
-            bound_form = RecipeForm(request.POST, files=request.FILES)
+            bound_form = RecipeForm(request.POST or None,
+                                    files=request.FILES or None,
+                                    initial={"request": request})
+
+            context = {
+                'form': bound_form,
+                'title': 'Создание рецепта',
+                'botton_name': 'Создать рецепт'
+            }
 
         if bound_form.is_valid():
-            recipe_ingredients = IngredientsForRecipe.objects.filter(
-                recipe=recipe
-            )
-            recipe_ingredients.delete()
             new_recipe = bound_form.save(commit=False)
             new_recipe.tags = request.POST.getlist('tags')
-            new_recipe.author = request.user
-            new_recipe.save()
-            bound_form.save_m2m()
-            # вытаскиваем список ингридиентов из формы
-            ingredients = get_ingridient_from_form(request.POST)
-            for title, amount in ingredients.items():
-                ingredient = get_object_or_404(
-                    Ingredients,
-                    title=title
-                )
-                recipe_ingridiend = IngredientsForRecipe(
-                    recipe=new_recipe,
-                    ingredient=ingredient,
-                    amount=amount
-                )
-                recipe_ingridiend.save()
+
             return redirect(new_recipe)
         return render(request, 'recipe_create_or_update.html',
-                      context={'form': bound_form})
+                      context=context)
 
 
 class RecipeDelete(View):
