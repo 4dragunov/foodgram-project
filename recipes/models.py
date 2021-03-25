@@ -94,7 +94,11 @@ class IngredientsForRecipe(models.Model):
     ingredient = models.ForeignKey(Ingredients, on_delete=models.CASCADE,
                                    verbose_name='Ингридиент',
                                    related_name='ingredient_recipe')
-    amount = models.PositiveIntegerField(default=1, help_text='в граммах')
+    amount = models.PositiveIntegerField(default=1,
+                                         help_text='в граммах',
+                                         validators=[MinValueValidator(1)],
+                                         null=False,
+                                         blank=False)
     date_pub = models.DateTimeField(auto_now_add=True,
                                     db_index=True,
                                     verbose_name='Дата создания')
@@ -104,6 +108,7 @@ class IngredientsForRecipe(models.Model):
 
     class Meta:
         verbose_name_plural = "Ингредиенты для рецепта"
+        verbose_name = "Ингредиент для рецепта"
 
 
 class Subscription(models.Model):

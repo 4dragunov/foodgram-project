@@ -30,6 +30,7 @@
                     {{ recipe.prep_time }} мин.
                 </p>
                 <p class="card__text"><span class="icon-user"></span>
+                    <style> a {text-decoration: none;} </style>
                     <a href="{% url 'user_profile_url' recipe.author.username %}"
                        style="color: black">
                     {% firstof recipe.author.get_full_name recipe.author.username %}
@@ -42,7 +43,7 @@
                 {% if recipe|check_purchase:request.user %}
                     <button class="button button_style_light-blue-outline" name="purchases"><span class="icon-check button__icon"></span> Рецепт добавлен</button>
                 {% else %}
-                    <button class="button button_style_blue" name="purchases" data-out><span class="icon-plus"></span> Добавить в покупки</button>
+                    <button class="button button_style_light-blue" name="purchases" data-out><span class="icon-plus button__icon"></span> Добавить в покупки</button>
                 {% endif %}
 
                 {% if recipe|check_favorite:request.user %}
@@ -53,5 +54,3 @@
             {% endif %}
         </div>
     </div>
-
-

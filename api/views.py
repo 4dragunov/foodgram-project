@@ -72,6 +72,6 @@ class IngredientsViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         """вывод списка ингридиентов"""
         query = request.GET['query']
-        queryset = self.queryset.filter(title__contains=query)
+        queryset = self.queryset.filter(title__istartswith=query)
         serializer = IngredientsSerializer(queryset, many=True)
         return Response(serializer.data)

@@ -46,15 +46,20 @@ class RecipeForm(forms.ModelForm):
 
     def clean(self):
         ingridients = self.clean_ingridient()
+
+        print(ingridients)
+        print(ingridients.values())
+
         if len(ingridients) == 0:
             raise ValidationError(
                 'Из ничего вкусно не получится! Добавьте что-нибудь',
             )
 
-        if '0' in ingridients.values():
-            raise ValidationError(
-                'Уберите ингридиент с 0 значением',
-            )
+        for value in ingridients.values():
+            if int(value) < 1:
+                raise ValidationError(
+                    'Уберите ингридиент с 0 значением',
+                )
 
     def save(self, commit=True):
         request = self.initial["request"]
