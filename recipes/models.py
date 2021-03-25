@@ -167,3 +167,7 @@ class Purchase(models.Model):
         verbose_name = "Список покупок"
         verbose_name_plural = "Списки покупок"
         ordering = ("-date_pub",)
+
+    def __str__(self):
+        return self.recipe.title
+

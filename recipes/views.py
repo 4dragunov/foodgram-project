@@ -109,15 +109,20 @@ def get_purchase_list(request):
     purchase = Purchase.objects.filter(user=request.user)
     ingredients = purchase.values('recipe__ingredients__title',
                                   'recipe__ingredients__dimension').annotate(
-        recipe__ingredients_amount_sum=Sum(
-            'recipe__recipe_ingredient__amount'))
+        total_amount=Sum('recipe__ingredients__ingredient_recipe__amount'
+                         ''))
+    result = set()
     for ingredient in ingredients:
-        item = (f'{ingredient["recipe__ingredients__title"]} '
-                f'{ingredient["recipe__ingredients_amount_sum"]} '
-                f'{ingredient["recipe__ingredients__dimension"]}')
-        txt += item + '\n'
+        if ingredient['recipe__ingredients__title'] not in result:
+            item = (f'{ingredient["recipe__ingredients__title"]} '
+                    f'{ingredient["total_amount"]} '
+                    f'{ingredient["recipe__ingredients__dimension"]}'
+                    )
+            result.add(ingredient['recipe__ingredients__title'])
+            txt += item + '\n'
     response = HttpResponse(txt, content_type='application/text charset=utf-8')
     response['Content-Disposition'] = f'attachment; filename={file_name}'
+
     return response
 
 
