@@ -26,7 +26,6 @@ class RecipeForm(forms.ModelForm):
         for key, title in self.data.items():
             if 'nameIngredient_' in key:
                 elem = key.split("_")
-                print(elem)
                 new_ingridients_list[title] = int(self.data[f'valueIngredient'
                                                             f'_{elem[1]}'])
 
@@ -46,9 +45,6 @@ class RecipeForm(forms.ModelForm):
 
     def clean(self):
         ingridients = self.clean_ingridient()
-
-        print(ingridients)
-        print(ingridients.values())
 
         if len(ingridients) == 0:
             raise ValidationError(
